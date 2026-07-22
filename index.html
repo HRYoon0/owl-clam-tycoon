@@ -24,7 +24,7 @@
         <span title="경험치"><i>⚡</i><b id="xpValue">0</b> XP</span>
         <span title="진주"><i>●</i><b id="pearlValue">12</b> 진주</span>
       </div>
-      <button class="icon-button" id="soundButton" type="button" aria-label="효과음 켜기" aria-pressed="false">♪</button>
+      <button class="icon-button" id="soundButton" type="button" aria-label="배경 음악 켜기" aria-pressed="false" title="배경 음악">♪</button>
       <button class="icon-button" id="resetButton" type="button" aria-label="게임 초기화">↺</button>
     </header>
 
@@ -107,6 +107,7 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="level-up" id="levelUp" aria-hidden="true"><span>진화!</span><strong id="levelUpName">바지락</strong><small>새로운 조개가 되었습니다</small></div>
 
+    <audio id="bgm" src="assets/stylish-seafood.mp3" loop preload="metadata"></audio>
     <script src="app.js"></script>
   </body>
 </html>

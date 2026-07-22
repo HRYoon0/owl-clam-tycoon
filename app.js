@@ -59,12 +59,14 @@ const elements = {
   recipeGrid: $("#recipeGrid"), recipeDialog: $("#recipeDialog"), toast: $("#toast"),
   levelUp: $("#levelUp"), levelUpName: $("#levelUpName"), orbit: $("#dishOrbit"),
   quote: $("#fieldQuote"), rank: $("#gameRank"), sound: $("#soundButton"),
+  bgm: $("#bgm"),
 };
 
 function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(saveKey));
-    return saved ? { ...initialState, ...saved } : { ...initialState };
+    // 브라우저 자동재생 정책에 맞춰 방문할 때마다 직접 음악을 켜도록 한다.
+    return saved ? { ...initialState, ...saved, sound: false } : { ...initialState };
   } catch {
     return { ...initialState };
   }
@@ -104,7 +106,7 @@ function render() {
   elements.done.textContent = state.done;
   elements.streak.textContent = state.streak;
   elements.sound.setAttribute("aria-pressed", String(state.sound));
-  elements.sound.setAttribute("aria-label", state.sound ? "효과음 끄기" : "효과음 켜기");
+  elements.sound.setAttribute("aria-label", state.sound ? "배경 음악 끄기" : "배경 음악 켜기");
 
   if (stage.next === null) {
     elements.stageText.textContent = "최종 진화 완료";
@@ -288,10 +290,23 @@ elements.recipeDialog.addEventListener("click", (event) => {
   if (event.target === elements.recipeDialog) elements.recipeDialog.close();
 });
 
-elements.sound.addEventListener("click", () => {
+elements.sound.addEventListener("click", async () => {
   state.sound = !state.sound;
+  if (state.sound) {
+    elements.bgm.volume = .32;
+    try {
+      await elements.bgm.play();
+      playTone(480, .07);
+      showToast("멋쟁이 어패류 재생 중 ♪");
+    } catch {
+      state.sound = false;
+      showToast("음악을 재생하지 못했습니다. 다시 눌러주세요.");
+    }
+  } else {
+    elements.bgm.pause();
+    showToast("배경 음악을 껐습니다.");
+  }
   render();
-  if (state.sound) playTone(480, .07);
 });
 
 $("#resetButton").addEventListener("click", () => {
