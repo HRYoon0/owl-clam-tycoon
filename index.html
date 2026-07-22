@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#082f49" />
+    <meta
+      name="description"
+      content="할 일을 끝내고 조개를 진화시키는 부엉이방발 어패류 타이쿤"
+    />
+    <title>조개는 일을 한다 — 어패류 타이쿤</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="water-glow water-glow--one" aria-hidden="true"></div>
+    <div class="water-glow water-glow--two" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#game" aria-label="게임 처음으로">
+        <span class="brand__mark">ㅈㄱ</span>
+        <span><strong>조개는 일을 한다</strong><small>어패류 타이쿤 · 부엉이방 에디션</small></span>
+      </a>
+      <div class="wallet" aria-label="보유 자원">
+        <span title="경험치"><i>⚡</i><b id="xpValue">0</b> XP</span>
+        <span title="진주"><i>●</i><b id="pearlValue">12</b> 진주</span>
+      </div>
+      <button class="icon-button" id="soundButton" type="button" aria-label="효과음 켜기" aria-pressed="false">♪</button>
+      <button class="icon-button" id="resetButton" type="button" aria-label="게임 초기화">↺</button>
+    </header>
+
+    <main id="game" class="game-shell">
+      <section class="hero-card" aria-labelledby="gameTitle">
+        <div class="hero-copy">
+          <p class="eyebrow">방학 프로젝트 001 · 바다 노동 시뮬레이션</p>
+          <h1 id="gameTitle">일해서,<br /><em>대왕조개</em>가 되자.</h1>
+          <p class="hero-copy__lead">할 일 하나를 끝낼 때마다 조개가 자랍니다. 언젠가 진주를 뱉고 만백성을 먹여 살리는 그날까지.</p>
+        </div>
+
+        <div class="specimen" id="specimen">
+          <div class="specimen__label"><span id="stageNumber">STAGE 01</span><b id="stageName">재첩</b></div>
+          <div class="bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div class="dish-orbit" id="dishOrbit" aria-hidden="true"></div>
+          <button class="clam" id="clamButton" type="button" aria-label="조개 응원하기">
+            <span class="clam__top"></span>
+            <span class="clam__face"><i class="eye eye--left"></i><i class="eye eye--right"></i><i class="mouth"></i></span>
+            <span class="clam__bottom"></span>
+            <span class="clam__shadow"></span>
+          </button>
+          <p class="clam-says" id="clamSays" aria-live="polite">오늘 할 일을 하나만 끝내보자!</p>
+          <div class="progress-block">
+            <div><span id="nextStageText">다음 진화: 바지락</span><b id="progressText">0 / 40 XP</b></div>
+            <div class="progress-track"><i id="progressBar"></i></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="idea-ticker" aria-label="대화에서 태어난 아이디어">
+        <span>만취부엉이의 성장 시스템</span><i>✦</i><span>고라니의 조개 진화론</span><i>✦</i><span>헤이요의 어패류 세계관</span><i>✦</i><span>호랭이의 소스 컬러</span><i>✦</i><span>10살의 “만들 수 있을 듯?”</span>
+      </div>
+
+      <section class="dashboard">
+        <article class="panel task-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">오늘의 양식장</p><h2>할 일을 먹이로</h2></div>
+            <span class="today" id="todayLabel"></span>
+          </div>
+          <form class="task-form" id="taskForm">
+            <label class="sr-only" for="taskInput">새 할 일</label>
+            <input id="taskInput" maxlength="48" placeholder="오늘 끝낼 일을 적어주세요" autocomplete="off" />
+            <button type="submit">먹이 등록 <span>＋</span></button>
+          </form>
+          <div class="task-stats">
+            <span><b id="doneCount">0</b>개 완료</span>
+            <span><b id="streakCount">0</b> 연속 성공</span>
+            <span>완료당 <b>20 XP</b></span>
+          </div>
+          <ul class="task-list" id="taskList"></ul>
+          <div class="empty-state" id="emptyState">
+            <span>〰</span>
+            <p>양식장이 고요합니다.<br />작은 할 일부터 먹이로 넣어보세요.</p>
+          </div>
+        </article>
+
+        <article class="panel kitchen-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">조개의 옷장</p><h2>오늘의 요리</h2></div>
+            <button class="text-button" id="recipeButton" type="button">비밀 도감 <span id="recipeCount">0/4</span></button>
+          </div>
+          <p class="panel-description">진주로 요리를 장만해 조개에게 둘러주세요. 궁합이 맞는 곁들이는 보너스를 줍니다.</p>
+          <div class="shop" id="shop"></div>
+        </article>
+      </section>
+
+      <section class="field-note">
+        <p class="eyebrow">관찰 일지</p>
+        <blockquote id="fieldQuote">“처음에는 엄청 작은 재첩이었는데, 점점 키우는 거야.”</blockquote>
+        <div class="field-note__meta"><span>G-DEAL 부엉이방 · 2026.07.22</span><b id="gameRank">견습 양식가</b></div>
+      </section>
+    </main>
+
+    <dialog class="recipe-dialog" id="recipeDialog">
+      <div class="dialog-heading"><div><p class="eyebrow">발견 기록</p><h2>비밀 요리 도감</h2></div><button id="closeRecipeButton" type="button" aria-label="닫기">×</button></div>
+      <p>특정 요리와 곁들이를 모두 장만하면 레시피가 열립니다.</p>
+      <div class="recipe-grid" id="recipeGrid"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="level-up" id="levelUp" aria-hidden="true"><span>진화!</span><strong id="levelUpName">바지락</strong><small>새로운 조개가 되었습니다</small></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
