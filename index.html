@@ -24,6 +24,7 @@
         <span title="경험치"><i>⚡</i><b id="xpValue">0</b> XP</span>
         <span title="진주"><i>●</i><b id="pearlValue">12</b> 진주</span>
       </div>
+      <button class="icon-button" id="widgetOpenButton" type="button" aria-label="위젯 창 열기" title="위젯 창 열기">▣</button>
       <button class="icon-button" id="soundButton" type="button" aria-label="배경 음악 켜기" aria-pressed="false" title="배경 음악">♪</button>
       <button class="icon-button" id="resetButton" type="button" aria-label="게임 초기화">↺</button>
     </header>
@@ -37,6 +38,18 @@
         </div>
 
         <div class="specimen" id="specimen">
+          <div class="widget-controls" id="widgetControls" aria-label="브라우저 위젯 조작">
+            <span class="widget-controls__drag">조개 위젯</span>
+            <div class="widget-controls__actions">
+              <button id="widgetMusicButton" type="button" aria-label="배경 음악 켜기" title="배경 음악">♪</button>
+              <button id="widgetExpandButton" type="button" aria-label="전체 게임 열기" title="전체 게임 열기">↗</button>
+              <button id="widgetHideButton" type="button" aria-label="위젯 닫기" title="위젯 닫기">×</button>
+            </div>
+          </div>
+          <div class="widget-wallet" aria-label="위젯 보유 자원">
+            <span>⚡ <b id="widgetXpValue">0</b></span>
+            <span>● <b id="widgetPearlValue">12</b></span>
+          </div>
           <div class="specimen__label"><span id="stageNumber">STAGE 01</span><b id="stageName">재첩</b></div>
           <div class="bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
           <div class="dish-orbit" id="dishOrbit" aria-hidden="true"></div>

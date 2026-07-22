@@ -60,6 +60,10 @@ const elements = {
   levelUp: $("#levelUp"), levelUpName: $("#levelUpName"), orbit: $("#dishOrbit"),
   quote: $("#fieldQuote"), rank: $("#gameRank"), sound: $("#soundButton"),
   bgm: $("#bgm"),
+  widgetXp: $("#widgetXpValue"), widgetPearls: $("#widgetPearlValue"),
+  widgetMusic: $("#widgetMusicButton"), widgetExpand: $("#widgetExpandButton"),
+  widgetHide: $("#widgetHideButton"),
+  widgetOpen: $("#widgetOpenButton"),
 };
 
 function loadState() {
@@ -95,10 +99,12 @@ function taskRewards() {
   };
 }
 
-function render() {
+function render(persist = true) {
   const stage = getStage();
   elements.xp.textContent = state.xp;
   elements.pearls.textContent = state.pearls;
+  if (elements.widgetXp) elements.widgetXp.textContent = state.xp;
+  if (elements.widgetPearls) elements.widgetPearls.textContent = state.pearls;
   elements.stageName.textContent = stage.name;
   elements.stageNumber.textContent = `STAGE ${String(stage.index + 1).padStart(2, "0")}`;
   elements.specimen.style.setProperty("--shell", stage.color);
@@ -107,6 +113,10 @@ function render() {
   elements.streak.textContent = state.streak;
   elements.sound.setAttribute("aria-pressed", String(state.sound));
   elements.sound.setAttribute("aria-label", state.sound ? "배경 음악 끄기" : "배경 음악 켜기");
+  if (elements.widgetMusic) {
+    elements.widgetMusic.setAttribute("aria-pressed", String(state.sound));
+    elements.widgetMusic.setAttribute("aria-label", state.sound ? "배경 음악 끄기" : "배경 음악 켜기");
+  }
 
   if (stage.next === null) {
     elements.stageText.textContent = "최종 진화 완료";
@@ -125,7 +135,7 @@ function render() {
   renderShop();
   renderRecipes();
   renderOrbit();
-  saveState();
+  if (persist) saveState();
 }
 
 function renderTasks() {
@@ -307,6 +317,57 @@ elements.sound.addEventListener("click", async () => {
     showToast("배경 음악을 껐습니다.");
   }
   render();
+});
+
+// 설치 없이 별도 브라우저 창으로 수조 위젯을 띄운다.
+const pageParams = new URLSearchParams(window.location.search);
+const isWidgetWindow = pageParams.get("widget") === "1";
+let widgetWindow;
+
+function gameUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("widget");
+  url.hash = "";
+  return url;
+}
+
+function openWidgetWindow() {
+  const url = gameUrl();
+  url.searchParams.set("widget", "1");
+  const left = Math.max(0, window.screen.availWidth - 430);
+  const top = Math.max(0, window.screen.availHeight - 690);
+  widgetWindow = window.open(
+    url,
+    "owl-clam-widget",
+    `popup=yes,width=410,height=650,left=${left},top=${top},resizable=yes,scrollbars=no`,
+  );
+  if (!widgetWindow) showToast("팝업이 차단됐습니다. 이 사이트의 팝업을 허용해주세요.");
+  else widgetWindow.focus();
+}
+
+document.body.classList.toggle("widget-app", isWidgetWindow);
+document.body.classList.toggle("widget-mode", isWidgetWindow);
+elements.widgetOpen?.addEventListener("click", openWidgetWindow);
+elements.widgetMusic?.addEventListener("click", () => elements.sound.click());
+elements.widgetExpand?.addEventListener("click", () => {
+  if (window.opener && !window.opener.closed) {
+    window.opener.focus();
+  } else {
+    window.open(gameUrl(), "_blank");
+  }
+});
+elements.widgetHide?.addEventListener("click", () => window.close());
+
+// 메인 화면과 위젯 창에서 진행 상황을 즉시 맞춘다.
+window.addEventListener("storage", (event) => {
+  if (event.key !== saveKey || !event.newValue) return;
+  try {
+    const incoming = JSON.parse(event.newValue);
+    state = { ...initialState, ...incoming, sound: state.sound };
+    render(false);
+  } catch {
+    // 다른 창의 저장 데이터가 완성되기 전이면 다음 변경 이벤트를 기다린다.
+  }
 });
 
 $("#resetButton").addEventListener("click", () => {
