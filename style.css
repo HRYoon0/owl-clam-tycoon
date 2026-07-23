@@ -286,7 +286,7 @@ h2 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -.045em; }
 /* 캘린더에서 온 일정은 한눈에 구분되게 한다. 완료 방식은 게임 할 일과 똑같다.
    뱃지가 들어가야 하므로 마지막 칸을 고정폭 대신 내용에 맞춘다. */
 .task-item--calendar { grid-template-columns: 31px 1fr; border-color: var(--tide); border-left: 4px solid var(--tide); background: rgba(224,247,242,.55); }
-.task-item__from { display: inline-block; margin-right: 7px; padding: 2px 8px; border-radius: 6px; background: var(--tide); color: white; font-size: 9px; font-weight: 900; font-style: normal; letter-spacing: .02em; vertical-align: 2px; white-space: nowrap; }
+.task-item__from { width: 16px; height: 16px; margin-right: 8px; vertical-align: -3px; border-radius: 3px; box-shadow: 0 0 0 1px rgba(6,47,69,.16); }
 .icon-button#googleButton { font-weight: 900; font-size: 15px; }
 .icon-button#googleButton.connected { background: var(--tide); color: white; border-color: var(--tide); }
 .icon-button#googleButton.expired { background: var(--yolk); border-color: #e0b52c; }

@@ -23,6 +23,19 @@ const shopItems = [
 ];
 const itemIcon = (id, className = "") => `<img class="${className}" src="assets/item/${id}.png" alt="" />`;
 
+// 구글 캘린더 아이콘. 공식 자산을 내려받는 대신 인라인 SVG로 그렸다.
+// 외부 요청이 없어 오프라인에서도 뜨고, 파일 하나 늘지 않는다.
+const calendarIcon = `<svg class="task-item__from" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+  <rect x="3" y="3" width="18" height="18" fill="#fff"/>
+  <rect x="3" y="3" width="18" height="3.2" fill="#4285f4"/>
+  <rect x="17.8" y="3" width="3.2" height="18" fill="#34a853"/>
+  <rect x="3" y="17.8" width="18" height="3.2" fill="#fbbc04"/>
+  <rect x="3" y="3" width="3.2" height="18" fill="#ea4335"/>
+  <rect x="6.2" y="6.2" width="11.6" height="11.6" fill="#fff"/>
+  <text x="12" y="15.6" text-anchor="middle" font-size="8" font-weight="700" fill="#1a73e8"
+        font-family="Arial, Helvetica, sans-serif">31</text>
+</svg>`;
+
 // 도감 그림은 needs의 재료 아이콘을 나열해 만든다 (레시피 전용 그림이 따로 필요 없다).
 const recipes = [
   { name: "이태리파 봉골레씨", needs: ["pasta", "pickle"], bonus: "할 일 XP +5" },
@@ -176,9 +189,11 @@ function renderTasks() {
     const remove = task.calendar
       ? ""
       : `<button class="task-item__delete" type="button" aria-label="${escapeHtml(task.text)} 삭제">×</button>`;
+    // 아이콘만 두면 화면 낭독기가 출처를 알 수 없어, 완료 버튼 설명에 출처를 넣는다.
+    const source = task.calendar ? "구글 캘린더 일정 " : "";
     item.innerHTML = `
-      <button class="task-item__check" type="button" ${task.done ? "disabled" : ""} aria-label="${escapeHtml(task.text)} ${task.done ? "완료함" : "완료하기"}">${task.done ? "✓" : ""}</button>
-      <span class="task-item__text">${task.calendar ? `<i class="task-item__from">구글 캘린더</i>` : ""}${escapeHtml(task.text)}</span>
+      <button class="task-item__check" type="button" ${task.done ? "disabled" : ""} aria-label="${source}${escapeHtml(task.text)} ${task.done ? "완료함" : "완료하기"}">${task.done ? "✓" : ""}</button>
+      <span class="task-item__text">${task.calendar ? calendarIcon : ""}${escapeHtml(task.text)}</span>
       ${remove}`;
     if (!task.done) item.querySelector(".task-item__check").addEventListener("click", () => completeTask(task.id));
     item.querySelector(".task-item__delete")?.addEventListener("click", () => deleteTask(task.id));
