@@ -2,7 +2,7 @@
 // 설정 방법은 GOOGLE-SETUP.md 참고. 아래 CLIENT_ID 한 줄만 채우면 켜진다.
 // 비워두면 연결 버튼이 숨겨지고 게임은 지금까지처럼 로컬로만 동작한다.
 
-const CLIENT_ID = "";
+const CLIENT_ID = "892165524575-jfne1e5b5gtih6jt4oivm3d2fpmvrkfs.apps.googleusercontent.com";
 
 const SCOPES = [
   "https://www.googleapis.com/auth/drive.appdata",      // 앱 전용 숨김 폴더 (남의 파일은 볼 수 없음)
