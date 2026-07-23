@@ -7,7 +7,7 @@
   --ink: #072f3b;
   --coral: #f05a47;
   --yolk: #ffd34e;
-  --muted: #66858b;
+  --muted: #4d6b72;
   --line: rgba(6, 47, 69, 0.14);
   --shadow: 0 22px 70px rgba(2, 42, 59, 0.15);
 }
@@ -19,7 +19,8 @@ body {
   min-width: 320px;
   color: var(--ink);
   background: #dff5ef;
-  font-family: Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   line-height: 1.5;
   overflow-x: hidden;
 }
@@ -104,18 +105,27 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yolk); outl
 }
 .widget-wallet span { padding: 6px 8px; border-radius: 99px; background: rgba(2, 40, 52, .25); backdrop-filter: blur(8px); }
 
-.widget-mode { overflow: hidden; background: transparent; }
+.widget-mode { overflow: hidden; background: var(--deep); }
 .widget-mode .water-glow,
 .widget-mode .topbar,
 .widget-mode .hero-copy,
 .widget-mode .idea-ticker,
-.widget-mode .dashboard,
+.widget-mode .kitchen-panel,
 .widget-mode .field-note { display: none; }
-.widget-mode .game-shell { width: 100%; height: 100vh; margin: 0; }
-.widget-mode .hero-card { min-height: 100vh; display: block; border-radius: 28px; background: transparent; box-shadow: none; }
-.widget-mode .specimen {
+/* 왼쪽은 조개, 오른쪽은 할 일 목록으로 나눈다. */
+.widget-mode .game-shell {
   width: 100%;
   height: 100vh;
+  margin: 0;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  gap: 10px;
+}
+.widget-mode .hero-card { min-height: 0; height: 100%; display: block; border-radius: 28px; background: transparent; box-shadow: none; }
+.widget-mode .specimen {
+  width: 100%;
+  height: 100%;
   min-height: 0;
   border: 1px solid rgba(255, 255, 255, .38);
   border-radius: 28px;
@@ -128,6 +138,40 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yolk); outl
 .widget-mode .dish-orbit { width: 340px; height: 350px; top: 49%; }
 .widget-mode .clam-says { bottom: 102px; font-size: 11px; }
 .widget-mode .progress-block { left: 22px; right: 22px; bottom: 24px; }
+
+/* 위젯 안의 할 일 패널은 창 높이에 맞추고 목록만 스크롤시킨다. */
+.widget-mode .dashboard { display: block; height: 100%; min-height: 0; }
+.widget-mode .task-panel {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border-radius: 24px;
+}
+.widget-mode .task-panel .eyebrow, .widget-mode .task-panel .today { display: none; }
+.widget-mode .task-panel h2 { font-size: 18px; }
+.widget-mode .task-form { margin: 12px 0 10px; gap: 6px; }
+.widget-mode .task-form input { height: 40px; border-radius: 12px; padding: 0 12px; font-size: 13px; }
+.widget-mode .task-form button { padding: 0 12px; border-radius: 12px; font-size: 12px; }
+.widget-mode .task-stats span:last-child { display: none; }
+.widget-mode .task-list { flex: 1; min-height: 0; margin-top: 12px; padding-right: 4px; overflow-y: auto; }
+.widget-mode .task-item { min-height: 46px; grid-template-columns: 26px 1fr 24px; gap: 8px; }
+.widget-mode .task-item__check { width: 24px; height: 24px; }
+.widget-mode .empty-state { flex: 1; min-height: 0; }
+
+/* 창이 좁아지면 조개 아래로 할 일이 내려간다. 위의 위젯 규칙들을 덮어써야 하므로 뒤에 둔다. */
+@media (max-width: 620px) {
+  .widget-mode .game-shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, .85fr) minmax(0, 1.15fr); }
+  /* 조개 칸이 낮아지므로 조개를 줄이고 말풍선·진행바와 겹치지 않게 띄운다. */
+  .widget-mode .clam, .widget-mode .clam:hover { transform: scale(.58); margin-top: -46px; }
+  .widget-mode .dish-orbit { width: 230px; height: 235px; }
+  .widget-mode .clam-says { bottom: 58px; font-size: 10px; }
+  .widget-mode .progress-block { bottom: 14px; }
+  /* 휴대폰용 세로 입력폼 규칙이 위젯까지 따라오지 않게 한다. */
+  .widget-mode .task-form { flex-direction: row; }
+  .widget-mode .task-form button { height: auto; }
+}
 
 .game-shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto 70px; }
 .hero-card {

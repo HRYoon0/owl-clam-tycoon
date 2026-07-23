@@ -47,6 +47,7 @@ const initialState = { xp: 0, pearls: 12, tasks: [], owned: [], done: 0, streak:
 const saveKey = "owl-clam-tycoon-v1";
 let state = loadState();
 let toastTimer;
+let audioContext;
 
 const $ = (selector) => document.querySelector(selector);
 const elements = {
@@ -182,15 +183,16 @@ function renderRecipes() {
 }
 
 function renderOrbit() {
-  const display = state.owned.slice(-3).map((id) => shopItems.find((item) => item.id === id));
+  // 예전 저장 데이터에 없어진 아이템 id가 남아 있어도 화면이 깨지지 않게 거른다.
+  const display = state.owned.slice(-3).map((id) => shopItems.find((item) => item.id === id)).filter(Boolean);
   elements.orbit.innerHTML = display.map((item) => `<span title="${item.name}">${item.icon}</span>`).join("");
 }
 
 function addTask(text) {
   const clean = text.trim();
   if (!clean) return;
-  state.tasks.unshift({ id: Date.now(), text: clean });
-  state.streak = 0;
+  // 같은 밀리초에 등록해도 겹치지 않는 id를 쓴다.
+  state.tasks.unshift({ id: `${Date.now()}-${Math.random()}`, text: clean });
   elements.taskInput.value = "";
   showToast("먹이를 등록했습니다. 이제 끝내러 가요!");
   playTone(330, .06);
@@ -264,7 +266,10 @@ function playTone(frequency, duration) {
   if (!state.sound) return;
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   if (!AudioContext) return;
-  const context = new AudioContext();
+  // 브라우저는 문서당 오디오 컨텍스트 개수를 제한하므로 하나를 계속 재사용한다.
+  if (!audioContext) audioContext = new AudioContext();
+  const context = audioContext;
+  if (context.state === "suspended") context.resume();
   const oscillator = context.createOscillator();
   const gain = context.createGain();
   oscillator.frequency.value = frequency;
@@ -279,7 +284,8 @@ function playTone(frequency, duration) {
 function escapeHtml(text) {
   const element = document.createElement("div");
   element.textContent = text;
-  return element.innerHTML;
+  // textContent는 따옴표를 남겨두므로, 속성값에 넣어도 안전하도록 함께 막는다.
+  return element.innerHTML.replaceAll('"', "&quot;");
 }
 
 elements.taskForm.addEventListener("submit", (event) => {
@@ -334,12 +340,12 @@ function gameUrl() {
 function openWidgetWindow() {
   const url = gameUrl();
   url.searchParams.set("widget", "1");
-  const left = Math.max(0, window.screen.availWidth - 430);
-  const top = Math.max(0, window.screen.availHeight - 690);
+  const left = Math.max(0, window.screen.availWidth - 760);
+  const top = Math.max(0, window.screen.availHeight - 700);
   widgetWindow = window.open(
     url,
     "owl-clam-widget",
-    `popup=yes,width=410,height=650,left=${left},top=${top},resizable=yes,scrollbars=no`,
+    `popup=yes,width=740,height=660,left=${left},top=${top},resizable=yes,scrollbars=no`,
   );
   if (!widgetWindow) showToast("팝업이 차단됐습니다. 이 사이트의 팝업을 허용해주세요.");
   else widgetWindow.focus();
