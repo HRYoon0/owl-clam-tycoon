@@ -12,6 +12,7 @@ const SCOPES = [
 
 const SAVE_NAME = "save.json";
 const CONNECTED_KEY = "owl-clam-google-connected";
+const TOKEN_KEY = "owl-clam-google-token";       // 새로고침해도 로그인이 풀리지 않도록 보관
 const CALENDAR_KEY = "owl-clam-calendar";        // 메인 창이 받아온 일정을 위젯 창에 넘기는 통로
 const CALENDAR_DONE_DAYS = 14;   // 완료 기록을 이 일수만큼만 남긴다
 
@@ -31,12 +32,50 @@ const dayKey = (date) => {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 };
 
-function setStatus(label, connected) {
+// state: "off" | "on" | "expired"
+let uiState = "off";
+function setStatus(next) {
+  uiState = next;
   if (!cloudButton) return;
-  cloudButton.textContent = label;
-  cloudButton.classList.toggle("connected", Boolean(connected));
-  cloudButton.setAttribute("title", account ? `${account} · 눌러서 연결 해제` : "구글 계정 연결");
-  cloudButton.setAttribute("aria-label", account ? `${account} 연결됨. 눌러서 연결 해제` : "구글 계정 연결");
+  cloudButton.textContent = "G";
+  cloudButton.classList.toggle("connected", next === "on");
+  cloudButton.classList.toggle("expired", next === "expired");
+  const label = next === "on" ? `${account} 연결됨. 눌러서 연결 해제`
+    : next === "expired" ? "구글 연결이 만료됐습니다. 눌러서 다시 연결"
+    : "구글 계정 연결";
+  cloudButton.setAttribute("title", label);
+  cloudButton.setAttribute("aria-label", label);
+}
+
+// 토큰은 한 시간쯤 살아 있다. 보관해두면 그동안은 새로고침해도 팝업 없이 이어진다.
+// 참고: 액세스 토큰을 localStorage에 두는 방식이라 XSS가 나면 함께 노출된다.
+// 이 앱의 사용자 입력은 전부 이스케이프 처리돼 있고 범위도 좁아(앱 전용 폴더 · 캘린더 읽기) 감수한다.
+function saveToken() {
+  try { localStorage.setItem(TOKEN_KEY, JSON.stringify({ accessToken, tokenExpiresAt, account })); } catch {}
+}
+function restoreToken() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(TOKEN_KEY) || "null");
+    if (!saved?.accessToken || Date.now() >= saved.tokenExpiresAt - 60000) return false;
+    accessToken = saved.accessToken;
+    tokenExpiresAt = saved.tokenExpiresAt;
+    account = saved.account || "";
+    return true;
+  } catch { return false; }
+}
+function clearToken() {
+  accessToken = ""; tokenExpiresAt = 0;
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+// 토큰이 만료되면 팝업을 다시 띄워야 하는데, 클릭 없이 띄우면 브라우저가 막는다.
+// 그래서 자동 재시도 대신 버튼을 "다시 연결" 상태로 바꿔 사용자가 누르게 한다.
+function needsReconnect() {
+  clearToken();
+  Cloud.calendarTasks = [];
+  setStatus("expired");
+  showToast("구글 연결이 만료됐습니다. G 버튼을 눌러 다시 연결해 주세요.");
+  render(false);
 }
 
 // ── 토큰 ────────────────────────────────────────────────────────────────
@@ -49,6 +88,7 @@ function requestToken(interactive) {
       if (response.error) return reject(new Error(response.error));
       accessToken = response.access_token;
       tokenExpiresAt = Date.now() + (Number(response.expires_in) || 3600) * 1000;
+      saveToken();
       resolve(accessToken);
     };
     tokenClient.error_callback = (error) => reject(new Error(error?.type || "토큰 요청 실패"));
@@ -56,22 +96,20 @@ function requestToken(interactive) {
   });
 }
 
-async function ensureToken() {
+const RECONNECT = "RECONNECT";
+
+function ensureToken() {
   if (accessToken && Date.now() < tokenExpiresAt - 60000) return accessToken;
-  return requestToken(false);
+  throw new Error(RECONNECT);   // 자동 팝업은 차단되므로 사용자 클릭을 기다린다
 }
 
-// 401이면 토큰을 새로 받아 한 번만 재시도한다.
-async function api(url, options = {}, retried = false) {
-  const token = await ensureToken();
+async function api(url, options = {}) {
+  const token = ensureToken();
   const response = await fetch(url, {
     ...options,
     headers: { Authorization: `Bearer ${token}`, ...(options.headers || {}) },
   });
-  if (response.status === 401 && !retried) {
-    accessToken = "";
-    return api(url, options, true);
-  }
+  if (response.status === 401) throw new Error(RECONNECT);
   if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
   return response;
 }
@@ -167,22 +205,26 @@ async function syncOnConnect() {
   return "이 기기 기록이 더 최신이라 드라이브를 갱신했습니다.";
 }
 
+// 이미 받아둔 토큰으로 동기화와 캘린더 조회를 한다. 팝업이 필요 없다.
+async function resume() {
+  const me = await (await api("https://www.googleapis.com/oauth2/v3/userinfo")).json();
+  account = me.email || "";
+  saveToken();
+  const message = await syncOnConnect();
+  setStatus("on");
+  await fetchCalendar();
+  pruneCalendarDone();
+  render();
+  return message;
+}
+
 async function connect() {
-  setStatus("···");
   try {
     await requestToken(true);
-    const me = await (await api("https://www.googleapis.com/oauth2/v3/userinfo")).json();
-    account = me.email || "";
     localStorage.setItem(CONNECTED_KEY, "1");
-
-    const message = await syncOnConnect();
-    setStatus("G", true);
-    showToast(message);
-
-    await fetchCalendar();
-    pruneCalendarDone();
-    render();
+    showToast(await resume());
   } catch (error) {
+    if (error.message === RECONNECT) return needsReconnect();
     disconnect(true);
     showToast("구글 연결에 실패했습니다. 다시 시도해 주세요.");
     console.error("[google]", error);
@@ -191,10 +233,12 @@ async function connect() {
 
 function disconnect(quiet) {
   if (accessToken && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(accessToken, () => {});
-  accessToken = ""; tokenExpiresAt = 0; account = ""; saveFileId = "";
+  clearToken();
+  account = ""; saveFileId = "";
   Cloud.calendarTasks = [];
   localStorage.removeItem(CONNECTED_KEY);
-  setStatus("G", false);
+  localStorage.removeItem(CALENDAR_KEY);
+  setStatus("off");
   if (!quiet) { showToast("구글 연결을 끊었습니다. 기록은 이 기기에 남아 있습니다."); render(); }
 }
 
@@ -214,7 +258,10 @@ const Cloud = {
     if (!accessToken || applyingRemote) return;
     clearTimeout(uploadTimer);
     uploadTimer = setTimeout(() => {
-      uploadSave().catch((error) => console.error("[google] 업로드 실패", error));
+      uploadSave().catch((error) => {
+        if (error.message === RECONNECT) return needsReconnect();
+        console.error("[google] 업로드 실패", error);
+      });
     }, 2500);
   },
 
@@ -254,22 +301,20 @@ function initGoogle() {
   if (!CLIENT_ID) { cloudButton.hidden = true; return; }   // 설정 전에는 버튼을 숨긴다
 
   tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: () => {} });
-  cloudButton.addEventListener("click", () => (Cloud.isConnected() ? disconnect() : connect()));
-  setStatus("G", false);
+  cloudButton.addEventListener("click", () => (uiState === "on" ? disconnect() : connect()));
+  setStatus("off");
 
-  // 지난번에 연결했다면 화면 없이 조용히 다시 붙는다.
-  if (localStorage.getItem(CONNECTED_KEY)) {
-    requestToken(false)
-      .then(async () => {
-        const me = await (await api("https://www.googleapis.com/oauth2/v3/userinfo")).json();
-        account = me.email || "";
-        await syncOnConnect();
-        setStatus("G", true);
-        await fetchCalendar();
-        pruneCalendarDone();
-        render();
-      })
-      .catch(() => setStatus("G", false));   // 조용한 재연결 실패는 버튼만 남기고 넘어간다
+  // 보관해둔 토큰이 아직 살아 있으면 팝업 없이 그대로 이어간다.
+  if (restoreToken()) {
+    setStatus("on");
+    resume().catch((error) => {
+      if (error.message === RECONNECT) return needsReconnect();
+      console.error("[google] 이어붙이기 실패", error);
+      setStatus("off");
+    });
+  } else if (localStorage.getItem(CONNECTED_KEY)) {
+    // 지난번엔 연결했지만 토큰이 만료됐다. 자동 팝업은 막히므로 눌러달라고만 표시한다.
+    setStatus("expired");
   }
 }
 

@@ -172,12 +172,13 @@ function renderTasks() {
     const item = document.createElement("li");
     item.className = `task-item${task.done ? " task-item--done" : ""}${task.calendar ? " task-item--calendar" : ""}`;
     // 캘린더 일정은 읽기 전용이라 삭제 버튼을 주지 않는다. 내일이면 목록에서 저절로 빠진다.
+    // 캘린더 일정은 읽기 전용이라 삭제 버튼 자리를 비운다. 출처는 글 앞 딱지 하나로만 밝힌다.
     const remove = task.calendar
-      ? `<span class="task-item__badge" title="구글 캘린더 일정">일정</span>`
+      ? ""
       : `<button class="task-item__delete" type="button" aria-label="${escapeHtml(task.text)} 삭제">×</button>`;
     item.innerHTML = `
       <button class="task-item__check" type="button" ${task.done ? "disabled" : ""} aria-label="${escapeHtml(task.text)} ${task.done ? "완료함" : "완료하기"}">${task.done ? "✓" : ""}</button>
-      <span class="task-item__text">${escapeHtml(task.text)}</span>
+      <span class="task-item__text">${task.calendar ? `<i class="task-item__from">구글 캘린더</i>` : ""}${escapeHtml(task.text)}</span>
       ${remove}`;
     if (!task.done) item.querySelector(".task-item__check").addEventListener("click", () => completeTask(task.id));
     item.querySelector(".task-item__delete")?.addEventListener("click", () => deleteTask(task.id));
