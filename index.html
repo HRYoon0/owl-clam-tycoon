@@ -29,6 +29,7 @@
         <span title="경험치"><i>⚡</i><b id="xpValue">0</b> XP</span>
         <span title="진주"><i>●</i><b id="pearlValue">12</b> 진주</span>
       </div>
+      <button class="icon-button" id="googleButton" type="button" aria-label="구글 계정 연결" title="구글 계정 연결">G</button>
       <button class="icon-button" id="widgetOpenButton" type="button" aria-label="위젯 창 열기" title="위젯 창 열기">▣</button>
       <button class="icon-button" id="soundButton" type="button" aria-label="배경 음악 켜기" aria-pressed="false" title="배경 음악">♪</button>
       <button class="icon-button" id="resetButton" type="button" aria-label="게임 초기화">↺</button>
@@ -127,6 +128,8 @@
     <div class="level-up" id="levelUp" aria-hidden="true"><span>진화!</span><strong id="levelUpName">바지락</strong><small>새로운 조개가 되었습니다</small></div>
 
     <audio id="bgm" src="assets/stylish-seafood.mp3" loop preload="metadata"></audio>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="app.js"></script>
+    <script src="google.js"></script>
   </body>
 </html>

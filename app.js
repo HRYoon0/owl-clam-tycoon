@@ -54,7 +54,9 @@ const quotes = [
   "“숨겨진 비밀 요리 레시피도 찾게 해주세요.”",
 ];
 
-const initialState = { xp: 0, pearls: 12, tasks: [], owned: [], done: 0, streak: 0, sound: false };
+// calendarDone: 캘린더에서 온 할 일을 완료한 날짜만 { 일정id: "YYYY-MM-DD" } 로 남긴다.
+// updatedAt: 드라이브 동기화에서 어느 쪽이 최신인지 가리는 기준.
+const initialState = { xp: 0, pearls: 12, tasks: [], owned: [], done: 0, streak: 0, sound: false, calendarDone: {}, updatedAt: 0 };
 const saveKey = "owl-clam-tycoon-v1";
 let state = loadState();
 let toastTimer;
@@ -89,7 +91,14 @@ function loadState() {
 }
 
 function saveState() {
+  state.updatedAt = Date.now();
   localStorage.setItem(saveKey, JSON.stringify(state));
+  window.Cloud?.markDirty();
+}
+
+// 캘린더에서 가져온 오늘 일정을 게임 할 일 위에 얹어 한 목록으로 보여준다.
+function visibleTasks() {
+  return [...(window.Cloud?.calendarTasks || []), ...state.tasks];
 }
 
 function getStage(xp = state.xp) {
@@ -156,17 +165,22 @@ function render(persist = true) {
 }
 
 function renderTasks() {
+  const tasks = visibleTasks();
   elements.taskList.innerHTML = "";
-  elements.empty.hidden = state.tasks.length > 0;
-  state.tasks.forEach((task) => {
+  elements.empty.hidden = tasks.length > 0;
+  tasks.forEach((task) => {
     const item = document.createElement("li");
-    item.className = `task-item${task.done ? " task-item--done" : ""}`;
+    item.className = `task-item${task.done ? " task-item--done" : ""}${task.calendar ? " task-item--calendar" : ""}`;
+    // 캘린더 일정은 읽기 전용이라 삭제 버튼을 주지 않는다. 내일이면 목록에서 저절로 빠진다.
+    const remove = task.calendar
+      ? `<span class="task-item__badge" title="구글 캘린더 일정">일정</span>`
+      : `<button class="task-item__delete" type="button" aria-label="${escapeHtml(task.text)} 삭제">×</button>`;
     item.innerHTML = `
       <button class="task-item__check" type="button" ${task.done ? "disabled" : ""} aria-label="${escapeHtml(task.text)} ${task.done ? "완료함" : "완료하기"}">${task.done ? "✓" : ""}</button>
       <span class="task-item__text">${escapeHtml(task.text)}</span>
-      <button class="task-item__delete" type="button" aria-label="${escapeHtml(task.text)} 삭제">×</button>`;
+      ${remove}`;
     if (!task.done) item.querySelector(".task-item__check").addEventListener("click", () => completeTask(task.id));
-    item.querySelector(".task-item__delete").addEventListener("click", () => deleteTask(task.id));
+    item.querySelector(".task-item__delete")?.addEventListener("click", () => deleteTask(task.id));
     elements.taskList.append(item);
   });
 }
@@ -217,12 +231,13 @@ function addTask(text) {
 }
 
 function completeTask(id) {
-  const task = state.tasks.find((item) => item.id === id);
+  const task = visibleTasks().find((item) => item.id === id);
   // 완료는 한 번뿐이다. 되돌릴 수 있게 하면 같은 할 일로 보상을 반복해서 받을 수 있다.
   if (!task || task.done) return;
   const before = getStage();
   const rewards = taskRewards();
   task.done = true;
+  if (task.calendar) window.Cloud?.markCalendarDone(task);
   state.xp += rewards.xp;
   state.pearls += rewards.pearls;
   state.done += 1;

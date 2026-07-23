@@ -283,6 +283,11 @@ h2 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -.045em; }
 .task-item__check { display: grid; place-items: center; width: 28px; height: 28px; border: 2px solid #94b8b7; border-radius: 9px; background: transparent; color: white; font-size: 15px; font-weight: 900; line-height: 1; cursor: pointer; }
 .task-item__check:hover { border-color: var(--tide); background: #e0f7f2; }
 .task-item__text { min-width: 0; font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
+/* 캘린더에서 온 일정은 게임 할 일과 구분하되, 완료 방식은 똑같다. */
+.task-item--calendar { border-color: rgba(25,165,162,.4); background: rgba(224,247,242,.45); }
+.task-item__badge { padding: 4px 8px; border-radius: 99px; background: #e0f7f2; color: var(--ocean); font-size: 9px; font-weight: 900; white-space: nowrap; }
+.icon-button#googleButton { font-weight: 900; font-size: 15px; }
+.icon-button#googleButton.connected { background: var(--tide); color: white; border-color: var(--tide); }
 /* 완료한 일은 지우지 않고 줄만 긋는다. 치우는 건 사용자가 × 로 직접 고른다. */
 .task-item--done { background: rgba(233,245,241,.6); }
 .task-item--done .task-item__check { border-color: var(--tide); background: var(--tide); cursor: default; }
