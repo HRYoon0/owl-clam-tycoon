@@ -289,7 +289,6 @@ h2 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -.045em; }
 .task-item__from { width: 16px; height: 16px; margin-right: 8px; vertical-align: -3px; border-radius: 3px; box-shadow: 0 0 0 1px rgba(6,47,69,.16); }
 .icon-button#googleButton { font-weight: 900; font-size: 15px; }
 .icon-button#googleButton.connected { background: var(--tide); color: white; border-color: var(--tide); }
-.icon-button#googleButton.expired { background: var(--yolk); border-color: #e0b52c; }
 /* 완료한 일은 지우지 않고 줄만 긋는다. 치우는 건 사용자가 × 로 직접 고른다. */
 .task-item--done { background: rgba(233,245,241,.6); }
 .task-item--done .task-item__check { border-color: var(--tide); background: var(--tide); cursor: default; }
