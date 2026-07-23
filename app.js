@@ -1,29 +1,34 @@
+// 껍데기 그림은 단계 순서대로 assets/shell/<번호>-top.png · <번호>-bottom.png 를 쓴다.
 const stages = [
-  { name: "재첩", min: 0, next: 40, color: "#f6c66e", rank: "견습 양식가" },
-  { name: "바지락", min: 40, next: 100, color: "#f0a76d", rank: "골목 양식가" },
-  { name: "동죽", min: 100, next: 180, color: "#d9ad7c", rank: "면 요리 연구원" },
-  { name: "맛조개", min: 180, next: 280, color: "#e19268", rank: "조개 감별사" },
-  { name: "키조개", min: 280, next: 420, color: "#bf8cc7", rank: "진주 수집가" },
-  { name: "가리비", min: 420, next: 600, color: "#ef7891", rank: "어패류 스타일리스트" },
-  { name: "대왕조개", min: 600, next: null, color: "#ffd34e", rank: "만백성의 성군" },
+  { name: "재첩", min: 0, next: 40, rank: "견습 양식가" },
+  { name: "바지락", min: 40, next: 100, rank: "골목 양식가" },
+  { name: "동죽", min: 100, next: 180, rank: "면 요리 연구원" },
+  { name: "맛조개", min: 180, next: 280, rank: "조개 감별사" },
+  { name: "키조개", min: 280, next: 420, rank: "진주 수집가" },
+  { name: "가리비", min: 420, next: 600, rank: "어패류 스타일리스트" },
+  { name: "대왕조개", min: 600, next: null, rank: "만백성의 성군" },
 ];
+const shellUrl = (number, half) => `url("assets/shell/${number}-${half}.png")`;
 
+// 아이콘 그림은 품목 id 그대로 assets/item/<id>.png 를 쓴다.
 const shopItems = [
-  { id: "pasta", name: "봉골레 파스타", icon: "🍝", price: 16, note: "바지락의 이태리산 망토" },
-  { id: "pickle", name: "피클", icon: "🥒", price: 9, note: "파스타 경험치 궁합" },
-  { id: "kalguksu", name: "30cm 칼국수", icon: "🍜", price: 18, note: "동죽의 포근한 외투" },
-  { id: "kimchi", name: "실비김치", icon: "🌶️", price: 11, note: "칼국수 진주 부스터" },
-  { id: "steamed", name: "바지락 술찜", icon: "🫕", price: 22, note: "야식계의 숨은 강자" },
-  { id: "garlic", name: "마늘 토핑", icon: "🧄", price: 10, note: "술찜 비밀 재료" },
-  { id: "chili", name: "청양고추", icon: "🌶", price: 10, note: "얼큰함 +99" },
-  { id: "cheese", name: "모짜렐라 치즈", icon: "🧀", price: 14, note: "가리비의 최종 장식" },
+  { id: "pasta", name: "봉골레 파스타", price: 16, note: "바지락의 이태리산 망토" },
+  { id: "pickle", name: "피클", price: 9, note: "파스타 경험치 궁합" },
+  { id: "kalguksu", name: "30cm 칼국수", price: 18, note: "동죽의 포근한 외투" },
+  { id: "kimchi", name: "실비김치", price: 11, note: "칼국수 진주 부스터" },
+  { id: "steamed", name: "바지락 술찜", price: 22, note: "야식계의 숨은 강자" },
+  { id: "garlic", name: "마늘 토핑", price: 10, note: "술찜 비밀 재료" },
+  { id: "chili", name: "청양고추", price: 10, note: "얼큰함 +99" },
+  { id: "cheese", name: "모짜렐라 치즈", price: 14, note: "가리비의 최종 장식" },
 ];
+const itemIcon = (id, className = "") => `<img class="${className}" src="assets/item/${id}.png" alt="" />`;
 
+// 도감 그림은 needs의 재료 아이콘을 나열해 만든다 (레시피 전용 그림이 따로 필요 없다).
 const recipes = [
-  { name: "이태리파 봉골레씨", icon: "🍝🥒", needs: ["pasta", "pickle"], bonus: "할 일 XP +5" },
-  { name: "시장표 동죽 칼국수", icon: "🍜🌶️", needs: ["kalguksu", "kimchi"], bonus: "완료 진주 +2" },
-  { name: "불타는 바지락 술찜", icon: "🫕🌶", needs: ["steamed", "chili", "garlic"], bonus: "완료 XP +10" },
-  { name: "치즈 폭포 가리비", icon: "🐚🧀", needs: ["cheese"], stage: 5, bonus: "진주 발견률 100%" },
+  { name: "이태리파 봉골레씨", needs: ["pasta", "pickle"], bonus: "할 일 XP +5" },
+  { name: "시장표 동죽 칼국수", needs: ["kalguksu", "kimchi"], bonus: "완료 진주 +2" },
+  { name: "불타는 바지락 술찜", needs: ["steamed", "chili", "garlic"], bonus: "완료 XP +10" },
+  { name: "치즈 폭포 가리비", needs: ["cheese"], stage: 5, bonus: "진주 발견률 100%" },
 ];
 
 const encouragements = [
@@ -33,6 +38,12 @@ const encouragements = [
   "작은 완료가 대왕조개를 만듭니다.",
   "플랑크톤은 기다려주지 않아요!",
   "힘내요. 진주는 노동 끝에 옵니다.",
+  "물살이 좀 세네요. 그래도 갑시다.",
+  "한 칸만 더 하면 껍데기가 두꺼워져요.",
+  "조개도 쉽니다. 대신 하나는 끝내고요.",
+  "오늘 것만 하면 돼요. 내일 건 내일.",
+  "가만히 있어도 물은 흘러가요.",
+  "끝낸 일은 지워지지 않고 남습니다.",
 ];
 
 const quotes = [
@@ -108,7 +119,12 @@ function render(persist = true) {
   if (elements.widgetPearls) elements.widgetPearls.textContent = state.pearls;
   elements.stageName.textContent = stage.name;
   elements.stageNumber.textContent = `STAGE ${String(stage.index + 1).padStart(2, "0")}`;
-  elements.specimen.style.setProperty("--shell", stage.color);
+  elements.specimen.style.setProperty("--shell-top", shellUrl(stage.index + 1, "top"));
+  elements.specimen.style.setProperty("--shell-bottom", shellUrl(stage.index + 1, "bottom"));
+  // 진화 순간에 그림이 늦게 뜨지 않도록 다음 단계를 미리 받아둔다 (브라우저 캐시가 중복 요청을 막는다).
+  if (stage.next !== null) ["top", "bottom"].forEach((half) => {
+    new Image().src = `assets/shell/${stage.index + 2}-${half}.png`;
+  });
   elements.rank.textContent = stage.rank;
   elements.done.textContent = state.done;
   elements.streak.textContent = state.streak;
@@ -144,12 +160,12 @@ function renderTasks() {
   elements.empty.hidden = state.tasks.length > 0;
   state.tasks.forEach((task) => {
     const item = document.createElement("li");
-    item.className = "task-item";
+    item.className = `task-item${task.done ? " task-item--done" : ""}`;
     item.innerHTML = `
-      <button class="task-item__check" type="button" aria-label="${escapeHtml(task.text)} 완료"></button>
+      <button class="task-item__check" type="button" ${task.done ? "disabled" : ""} aria-label="${escapeHtml(task.text)} ${task.done ? "완료함" : "완료하기"}">${task.done ? "✓" : ""}</button>
       <span class="task-item__text">${escapeHtml(task.text)}</span>
       <button class="task-item__delete" type="button" aria-label="${escapeHtml(task.text)} 삭제">×</button>`;
-    item.querySelector(".task-item__check").addEventListener("click", () => completeTask(task.id));
+    if (!task.done) item.querySelector(".task-item__check").addEventListener("click", () => completeTask(task.id));
     item.querySelector(".task-item__delete").addEventListener("click", () => deleteTask(task.id));
     elements.taskList.append(item);
   });
@@ -163,7 +179,7 @@ function renderShop() {
     button.type = "button";
     button.className = `shop-item${owned ? " owned" : ""}`;
     button.disabled = owned;
-    button.innerHTML = `<span class="shop-item__price">${owned ? "✓" : `● ${item.price}`}</span><span class="shop-item__icon">${item.icon}</span><b>${item.name}</b><small>${item.note}</small>`;
+    button.innerHTML = `<span class="shop-item__price">${owned ? "✓" : `● ${item.price}`}</span>${itemIcon(item.id, "shop-item__icon")}<b>${item.name}</b><small>${item.note}</small>`;
     button.addEventListener("click", () => buyItem(item));
     elements.shop.append(button);
   });
@@ -177,7 +193,8 @@ function renderRecipes() {
     const isUnlocked = unlocked.includes(recipe);
     const card = document.createElement("div");
     card.className = `recipe-card${isUnlocked ? "" : " locked"}`;
-    card.innerHTML = `<span>${isUnlocked ? recipe.icon : "❔"}</span><b>${isUnlocked ? recipe.name : "아직 모르는 요리"}</b><small>${isUnlocked ? recipe.bonus : "재료를 모으면 이름과 효과가 나타납니다."}</small>`;
+    const icons = isUnlocked ? recipe.needs.map((id) => itemIcon(id)).join("") : "?";
+    card.innerHTML = `<span class="recipe-card__icons">${icons}</span><b>${isUnlocked ? recipe.name : "아직 모르는 요리"}</b><small>${isUnlocked ? recipe.bonus : "재료를 모으면 이름과 효과가 나타납니다."}</small>`;
     elements.recipeGrid.append(card);
   });
 }
@@ -185,14 +202,14 @@ function renderRecipes() {
 function renderOrbit() {
   // 예전 저장 데이터에 없어진 아이템 id가 남아 있어도 화면이 깨지지 않게 거른다.
   const display = state.owned.slice(-3).map((id) => shopItems.find((item) => item.id === id)).filter(Boolean);
-  elements.orbit.innerHTML = display.map((item) => `<span title="${item.name}">${item.icon}</span>`).join("");
+  elements.orbit.innerHTML = display.map((item) => `<span title="${item.name}">${itemIcon(item.id)}</span>`).join("");
 }
 
 function addTask(text) {
   const clean = text.trim();
   if (!clean) return;
   // 같은 밀리초에 등록해도 겹치지 않는 id를 쓴다.
-  state.tasks.unshift({ id: `${Date.now()}-${Math.random()}`, text: clean });
+  state.tasks.unshift({ id: `${Date.now()}-${Math.random()}`, text: clean, done: false });
   elements.taskInput.value = "";
   showToast("먹이를 등록했습니다. 이제 끝내러 가요!");
   playTone(330, .06);
@@ -200,15 +217,18 @@ function addTask(text) {
 }
 
 function completeTask(id) {
+  const task = state.tasks.find((item) => item.id === id);
+  // 완료는 한 번뿐이다. 되돌릴 수 있게 하면 같은 할 일로 보상을 반복해서 받을 수 있다.
+  if (!task || task.done) return;
   const before = getStage();
   const rewards = taskRewards();
-  state.tasks = state.tasks.filter((task) => task.id !== id);
+  task.done = true;
   state.xp += rewards.xp;
   state.pearls += rewards.pearls;
   state.done += 1;
   state.streak += 1;
   const after = getStage();
-  elements.clamSays.textContent = encouragements[state.done % encouragements.length];
+  nextCheer();
   cheer();
   showToast(`완료! +${rewards.xp} XP · +${rewards.pearls} 진주`);
   playTone(520, .08);
@@ -217,9 +237,11 @@ function completeTask(id) {
 }
 
 function deleteTask(id) {
-  state.tasks = state.tasks.filter((task) => task.id !== id);
-  state.streak = 0;
-  showToast("할 일을 양식장에서 뺐습니다.");
+  const task = state.tasks.find((item) => item.id === id);
+  state.tasks = state.tasks.filter((item) => item.id !== id);
+  // 끝내지 않고 지운 것만 연속 기록을 끊는다. 완료한 일을 치우는 건 포기가 아니다.
+  if (task && !task.done) state.streak = 0;
+  showToast(task?.done ? "완료한 일을 목록에서 치웠습니다." : "할 일을 양식장에서 뺐습니다.");
   render();
 }
 
@@ -236,6 +258,21 @@ function buyItem(item) {
   const after = unlockedRecipes().length;
   showToast(after > before ? `비밀 레시피 발견! ${item.name}이 열쇠였습니다.` : `${item.name} 장만 완료!`);
   playTone(660, .08);
+}
+
+// 응원은 순서대로 돌린다. 무작위로 뽑으면 같은 말이 연달아 나온다.
+let cheerIndex = 0;
+function nextCheer() {
+  cheerIndex = (cheerIndex + 1) % encouragements.length;
+  sayCheer(encouragements[cheerIndex]);
+}
+
+// 조개 말풍선을 갈아끼우고 살짝 튀는 연출을 준다 (조용히 바뀌면 눈치채지 못한다).
+function sayCheer(message) {
+  elements.clamSays.textContent = message;
+  elements.clamSays.classList.remove("pop");
+  void elements.clamSays.offsetWidth;
+  elements.clamSays.classList.add("pop");
 }
 
 function cheer() {
@@ -294,8 +331,7 @@ elements.taskForm.addEventListener("submit", (event) => {
 });
 
 elements.clam.addEventListener("click", () => {
-  const message = encouragements[Math.floor(Math.random() * encouragements.length)];
-  elements.clamSays.textContent = message;
+  nextCheer();
   cheer();
   playTone(440, .06);
 });
@@ -379,10 +415,22 @@ window.addEventListener("storage", (event) => {
 $("#resetButton").addEventListener("click", () => {
   if (!window.confirm("조개의 성장 기록과 할 일을 모두 초기화할까요?")) return;
   state = { ...initialState, tasks: [], owned: [] };
-  elements.clamSays.textContent = encouragements[0];
+  cheerIndex = 0;
+  sayCheer(encouragements[0]);
   showToast("작은 재첩으로 돌아왔습니다.");
   render();
 });
+
+// 아무것도 하지 않아도 조개가 계속 말을 건다. 껍데기도 함께 여닫아 인사처럼 보이게 한다.
+// 간격을 10~20초로 흩는 이유: 정확히 같은 주기로 열리면 살아있는 게 아니라 기계처럼 보인다.
+function scheduleCheer() {
+  setTimeout(() => {
+    nextCheer();
+    cheer();
+    scheduleCheer();
+  }, 10000 + Math.random() * 10000);
+}
+scheduleCheer();
 
 const today = new Intl.DateTimeFormat("ko-KR", { month: "2-digit", day: "2-digit", weekday: "short" }).format(new Date());
 $("#todayLabel").textContent = today;
