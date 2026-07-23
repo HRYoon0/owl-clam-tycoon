@@ -150,7 +150,21 @@ function useSharedCalendar() {
   } catch { Cloud.calendarTasks = []; }
 }
 
+// 로그인 결과(?login=…)는 서버가 되돌려보낼 때 붙여주는 값이다.
+// 한 번 읽고 주소에서 지운다 — 주소창·북마크·방문 기록에 남을 이유가 없다.
+function takeLoginResult() {
+  const params = new URLSearchParams(location.search);
+  const result = params.get("login");
+  if (!result) return "";
+  params.delete("login");
+  const rest = params.toString();
+  history.replaceState(null, "", location.pathname + (rest ? `?${rest}` : "") + location.hash);
+  return result;
+}
+
 (async function initGoogle() {
+  const loginResult = takeLoginResult();
+
   if (document.body.classList.contains("widget-mode")) {
     if (cloudButton) cloudButton.hidden = true;
     useSharedCalendar();
@@ -179,9 +193,8 @@ function useSharedCalendar() {
 
   if (!me?.connected) {
     setStatus(false);
-    // 로그인 직후 되돌아온 경우 결과를 알려준다.
-    const result = new URLSearchParams(location.search).get("login");
-    if (result && result !== "ok") showToast("구글 로그인에 실패했습니다. 다시 시도해 주세요.");
+    // 로그인하러 갔다가 실패해서 돌아온 경우에만 알린다.
+    if (loginResult && loginResult !== "ok") showToast("구글 로그인에 실패했습니다. 다시 시도해 주세요.");
     return;
   }
 
